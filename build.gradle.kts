@@ -7,7 +7,7 @@ allprojects {
     apply<JavaLibraryPlugin>()
     apply<MavenPublishPlugin>()
 
-    group = "io.github.eutro.jwasm"
+    group = "com.github.portal-co.jwasm"
     version = "${properties["ver_major"]}.${properties["ver_minor"]}.${properties["ver_patch"]}"
     val phase = properties["ver_phase"]
     if (phase != null) version = "$version-$phase"
@@ -23,9 +23,7 @@ val jwasmVer = properties["jwasm_version"]
 allprojects {
     repositories {
         mavenCentral()
-        maven {
-            url = uri("https://maven.eutro.dev/releases")
-        }
+        maven ( url = "https://jitpack.io" )
         mavenLocal()
     }
 
@@ -35,8 +33,8 @@ allprojects {
         testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 
-        testImplementation("io.github.eutro.jwasm:jwasm-sexp:$jwasmVer")
-        testImplementation("io.github.eutro.jwasm:jwasm-test:$jwasmVer")
+        testImplementation("com.github.portal-co.jwasm:jwasm-sexp:$jwasmVer")
+        testImplementation("com.github.portal-co.jwasm:jwasm-test:$jwasmVer")
     }
 }
 
@@ -46,10 +44,10 @@ project(":wasm2j-api") {
         implementation("org.ow2.asm:asm-tree:9.4")
         testImplementation("org.ow2.asm:asm-util:9.4")
 
-        implementation("io.github.eutro.jwasm:jwasm:$jwasmVer")
-        implementation("io.github.eutro.jwasm:jwasm-tree:$jwasmVer")
-        implementation("io.github.eutro.jwasm:jwasm-analysis:$jwasmVer")
-        implementation("io.github.eutro.jwasm:jwasm-sexp:$jwasmVer")
+        implementation("com.github.portal-co.jwasm:jwasm:$jwasmVer")
+        implementation("com.github.portal-co.jwasm:jwasm-tree:$jwasmVer")
+        implementation("com.github.portal-co.jwasm:jwasm-analysis:$jwasmVer")
+        implementation("com.github.portal-co.jwasm:jwasm-sexp:$jwasmVer")
         implementation(project(":wasm2j-core"))
     }
 }
@@ -59,11 +57,11 @@ project(":wasm2j-embed") {
         implementation("org.ow2.asm:asm:9.4")
         implementation("org.ow2.asm:asm-tree:9.4")
 
-        implementation("io.github.eutro.jwasm:jwasm:$jwasmVer")
-        implementation("io.github.eutro.jwasm:jwasm-tree:$jwasmVer")
-        implementation("io.github.eutro.jwasm:jwasm-analysis:$jwasmVer")
-        implementation("io.github.eutro.jwasm:jwasm-attrs:$jwasmVer")
-        implementation("io.github.eutro.jwasm:jwasm-sexp:$jwasmVer")
+        implementation("com.github.portal-co.jwasm:jwasm:$jwasmVer")
+        implementation("com.github.portal-co.jwasm:jwasm-tree:$jwasmVer")
+        implementation("com.github.portal-co.jwasm:jwasm-analysis:$jwasmVer")
+        implementation("com.github.portal-co.jwasm:jwasm-attrs:$jwasmVer")
+        implementation("com.github.portal-co.jwasm:jwasm-sexp:$jwasmVer")
         implementation(project(":wasm2j-core"))
         implementation(project(":wasm2j-api"))
     }
@@ -76,10 +74,10 @@ project(":wasm2j-core") {
         implementation("org.ow2.asm:asm-analysis:9.4")
         implementation("org.ow2.asm:asm-util:9.4")
 
-        implementation("io.github.eutro.jwasm:jwasm:$jwasmVer")
-        implementation("io.github.eutro.jwasm:jwasm-tree:$jwasmVer")
-        implementation("io.github.eutro.jwasm:jwasm-analysis:$jwasmVer")
-        implementation("io.github.eutro.jwasm:jwasm-attrs:$jwasmVer")
+        implementation("com.github.portal-co.jwasm:jwasm:$jwasmVer")
+        implementation("com.github.portal-co.jwasm:jwasm-tree:$jwasmVer")
+        implementation("com.github.portal-co.jwasm:jwasm-analysis:$jwasmVer")
+        implementation("com.github.portal-co.jwasm:jwasm-attrs:$jwasmVer")
     }
 
     sourceSets {
@@ -101,9 +99,9 @@ tasks.javadoc {
             "https://asm.ow2.io/javadoc/",
             "https://eutro.github.io/jwasm",
         )
-        group("Core", "io.github.eutro.wasm2j.core*")
-        group("API", "io.github.eutro.wasm2j.api*")
-        group("Embedding", "io.github.eutro.wasm2j.embed*")
+        group("Core", "com.github.portal-co.wasm2j.core*")
+        group("API", "com.github.portal-co.wasm2j.api*")
+        group("Embedding", "com.github.portal-co.wasm2j.embed*")
     }
 }
 
@@ -119,23 +117,35 @@ allprojects {
         from(sourceSets.main.get().allSource)
     }
 
-    publishing {
-        repositories {
-            maven {
-                name = "eutroDev"
-                val repo = if (properties["ver_phase"] == "SNAPSHOT") "snapshots" else "release"
-                url = uri("https://maven.eutro.dev/${repo}")
-                credentials(PasswordCredentials::class)
-                authentication {
-                    create<BasicAuthentication>("basic")
-                }
-            }
+    publishing{
+        repositories{
+            mavenLocal()
         }
-        publications {
+                       publications {
             register<MavenPublication>("maven") {
                 from(components.named("java").get())
                 artifact(tasks["sourceJar"])
             }
         }
     }
+
+    // publishing {
+    //     repositories {
+    //         maven {
+    //             name = "eutroDev"
+    //             val repo = if (properties["ver_phase"] == "SNAPSHOT") "snapshots" else "release"
+    //             url = uri("https://maven.eutro.dev/${repo}")
+    //             credentials(PasswordCredentials::class)
+    //             authentication {
+    //                 create<BasicAuthentication>("basic")
+    //             }
+    //         }
+    //     }
+    //     publications {
+    //         register<MavenPublication>("maven") {
+    //             from(components.named("java").get())
+    //             artifact(tasks["sourceJar"])
+    //         }
+    //     }
+    // }
 }
